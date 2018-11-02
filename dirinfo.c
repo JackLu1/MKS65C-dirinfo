@@ -1,6 +1,8 @@
 #include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -16,8 +18,15 @@ int main(int argc, char** argv)
         dirname = argv[1];
     }
     DIR *dir_stream = opendir(dirname);
+    if (dir_stream == NULL)
+    {
+        printf("Error: %s\n", strerror(errno));
+        return -1;
+    }
+
     struct dirent *d;
 
+    /* Get number of directories and files */
     int dir_count = 0;
     int file_count = 0;
     while (d = readdir(dir_stream))
@@ -34,12 +43,8 @@ int main(int argc, char** argv)
 
     char **dirs = malloc(dir_count * sizeof(char *));
     char **files = malloc(file_count * sizeof(char *));
-    
-    closedir(dir_stream);
-    dir_stream = opendir(dirname);
-    
-    int i = 0;
-    int j = 0;
+    rewinddir(dir_stream);
+    int i = 0; int j = 0;
     while (d = readdir(dir_stream))
     {
         if (d->d_type == DT_REG)
