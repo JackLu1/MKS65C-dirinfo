@@ -6,6 +6,18 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+int cmpstr(const void *a, const void *b)
+{
+    /*
+     * For use with qsort() because qsort requires the function to have
+     * const void * as arguments.
+     *
+     * Casts the void pointers to a pointer to an array of char pointers,
+     * and dereferences that pointer to get the char pointer and pass it into strcmp. 
+     */
+    return strcmp(*(char **)a, *(char **) b);
+}
+
 int main(int argc, char** argv)
 {
     char *dirname;
@@ -57,6 +69,10 @@ int main(int argc, char** argv)
         }
     }
     closedir(dir_stream);
+
+    qsort(dir_list, dir_count, sizeof(char *), cmpstr);
+    qsort(file_list, file_count, sizeof(char *), cmpstr);
+
     printf("\x1b[34;1m"); // Print text in blue
     for (i = 0; i < dir_count; i++)
     {
