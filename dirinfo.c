@@ -23,7 +23,7 @@ struct dir_files
     char** file_list;
 };
 
-struct dir_files *read_files(DIR* dir_stream)
+struct dir_files *get_dir_files(DIR* dir_stream)
 {
     /*
      * Reads files in dir_stream and returns a pointer to struct dir_file.
@@ -41,7 +41,8 @@ struct dir_files *read_files(DIR* dir_stream)
             file_count++;
         }
     }
-    struct dir_files *dir = malloc(sizeof(struct dir_files) + sizeof(char *) * (dir_count + file_count));
+    struct dir_files *dir = malloc(sizeof(struct dir_files) +
+        sizeof(char *) * (dir_count + file_count));
     dir->dir_count = dir_count;
     dir->dir_list = malloc(sizeof(char *) * dir_count);
     dir->file_count = file_count;
@@ -118,7 +119,7 @@ int main(int argc, char** argv)
         printf("Error: %s\n", strerror(errno));
         return -1;
     }
-    struct dir_files *d = read_files(dir_stream);
+    struct dir_files *d = get_dir_files(dir_stream);
     closedir(dir_stream);
     print_dir(d);
     free_dir_files(d);
