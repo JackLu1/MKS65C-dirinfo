@@ -9,11 +9,12 @@
 int cmpstr(const void *a, const void *b)
 {
     /*
-     * For use with qsort() because qsort requires the function to have
-     * const void * as arguments.
+     * For use with qsort(), since
+     * qsort requires the function to have const void * as arguments.
      *
-     * Casts the void pointers to a pointer to an array of char pointers,
-     * and dereferences that pointer to get the char pointer and pass it into strcmp. 
+     * Casts the void pointers to a pointer to an array of char pointers
+     * (which is the original types of a and b),
+     * and dereferences that pointer to get the strings and pass it into strcmp. 
      */
     return strcmp(*(char **)a, *(char **) b);
 }
