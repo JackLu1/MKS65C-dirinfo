@@ -74,18 +74,34 @@ int main(int argc, char** argv)
     qsort(dir_list, dir_count, sizeof(char *), cmpstr);
     qsort(file_list, file_count, sizeof(char *), cmpstr);
 
+    int size = 0;
+
+    struct stat *s = malloc(sizeof(struct stat));
     printf("\x1b[34;1m"); // Print text in blue
+    printf("\nDirectories:\n");
     for (i = 0; i < dir_count; i++)
     {
+        stat(dir_list[i], s); 
+        size += s->st_size;
+
         printf("%s\n", dir_list[i]);
         free(dir_list[i]);
     }
     printf("\x1b[0m"); // Reset color
+    printf("\nRegular Files:\n");
     for (i = 0; i < file_count; i++)
     {
+        stat(file_list[i], s); 
+        size += s->st_size;
+
         printf("%s\n", file_list[i]);
         free(file_list[i]);
     }
+
+    printf("\nTotal Directory Size: %d Bytes\n", size);
+    printf("size of stat.c is %d bytes, %f KB, %f MB, %f GB\n", 
+            size, size/1000., size/1000000., size/1000000000. );
+
     free(dir_list);
     free(file_list);
     return 0;
