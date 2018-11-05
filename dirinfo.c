@@ -102,6 +102,7 @@ int main(int argc, char** argv)
     printf("size of stat.c is %d bytes, %f KB, %f MB, %f GB\n", 
             size, size/1000., size/1000000., size/1000000000. );
 
+    free(s);
     free(dir_list);
     free(file_list);
     return 0;
