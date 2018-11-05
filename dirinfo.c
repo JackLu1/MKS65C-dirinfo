@@ -21,10 +21,13 @@ int cmpstr(const void *a, const void *b)
 
 int main(int argc, char** argv)
 {
-    char *dirname;
+    char *dirname = malloc(100);
     if (argc < 2)
     {
-        dirname = ".";
+        printf("Enter directory path:\n");
+        fgets(dirname, 100, stdin);
+        // scanf("%s", dirname);
+        printf("directory %s\n", dirname);
     }
     else
     {
