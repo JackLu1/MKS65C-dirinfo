@@ -5,6 +5,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
+#include <pwd.h>
+#include <grp.h>
 
 int cmpstr(const void *a, const void *b)
 {
@@ -19,15 +22,26 @@ int cmpstr(const void *a, const void *b)
     return strcmp(*(char **)a, *(char **) b);
 }
 
+char * format(char * name, struct stat * s, struct passwd * pw, struct group * gr, char * p){
+    char * owner = malloc(23); 
+    char * group = malloc(23); 
+    char * time = malloc(100);
+    char * ll = malloc(50);
+
+    owner = pw->pw_name;
+    group = gr->gr_name;
+    strftime(time, 20, "%m %d %H:%M", localtime(&(s->st_mtime)));
+    sprintf(ll, "%s %ld %s %s %10ld %s %s", p, s->st_nlink, owner, group, s->st_size, time, name);
+    return ll;
+}
+
 int main(int argc, char** argv)
 {
     char *dirname = malloc(100);
     if (argc < 2)
     {
         printf("Enter directory path:\n");
-        fgets(dirname, 100, stdin);
-        // scanf("%s", dirname);
-        printf("directory %s\n", dirname);
+        scanf("%s", dirname);
     }
     else
     {
@@ -77,11 +91,19 @@ int main(int argc, char** argv)
     qsort(dir_list, dir_count, sizeof(char *), cmpstr);
     qsort(file_list, file_count, sizeof(char *), cmpstr);
 
+
+
     int size = 0;
 
     struct stat *s = malloc(sizeof(struct stat));
+    struct passwd *pw = malloc(sizeof(struct passwd));
+    struct group  *gr = malloc(sizeof(struct group));
+    char * perm = malloc(20);
+    int p;
+    char * rwx[] = {"---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"};
+    char * info = malloc(100);
+
     printf("\x1b[34;1m"); // Print text in blue
-    printf("\nDirectories:\n");
     for (i = 0; i < dir_count; i++)
     {
         stat(dir_list[i], s); 
@@ -91,13 +113,19 @@ int main(int argc, char** argv)
         free(dir_list[i]);
     }
     printf("\x1b[0m"); // Reset color
-    printf("\nRegular Files:\n");
     for (i = 0; i < file_count; i++)
     {
         stat(file_list[i], s); 
         size += s->st_size;
 
-        printf("%s\n", file_list[i]);
+        pw = getpwuid(s->st_uid);
+        gr = getgrgid(s->st_gid);
+        p = s->st_mode % 01000;
+        sprintf(perm, "%s%s%s", rwx[p >> 6 & 7], rwx[p >> 3 & 7], rwx[p & 7]);
+        info = format(file_list[i], s, pw, gr, perm );
+        printf("%s\n", info);
+        
+
         free(file_list[i]);
     }
 
@@ -105,7 +133,6 @@ int main(int argc, char** argv)
     printf("size of stat.c is %d bytes, %f KB, %f MB, %f GB\n", 
             size, size/1000., size/1000000., size/1000000000. );
 
-    free(s);
     free(dir_list);
     free(file_list);
     return 0;
